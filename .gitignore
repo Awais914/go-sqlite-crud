@@ -1,0 +1,41 @@
+# Ignore Go cache and build files
+.Gogradle
+.gradle
+/bin
+/obj
+/vendor
+
+# Ignore IDE and editor files
+/.idea
+/.vscode
+/.vim
+/.cache
+/.DS_Store
+/.env
+/.tern-project
+
+# Ignore logs and databases
+/*.log
+/*.db
+/*.sqlite
+/*.sqlite3
+
+# Ignore OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore node.js and npm files
+node_modules
+npm-debug.log
+
+# Ignore python files
+*.egg-info
+*.egg
+*.pyc
+*.pyo
+__pycache__
