@@ -1,0 +1,4 @@
+env: "xxx"
+storage_path: "xxx/xxx.db"
+http_server:
+  address: "xxx:xxx"

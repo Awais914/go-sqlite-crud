@@ -40,4 +40,5 @@ npm-debug.log
 *.pyo
 __pycache__
 
-storage
+/storage
+/config/local.yaml
