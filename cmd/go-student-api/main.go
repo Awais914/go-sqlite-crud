@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Awais914/go-students-api/internal/config"
+	"github.com/Awais914/go-students-api/internal/http/handlers/student"
 )
 
 func main() {
@@ -19,9 +20,7 @@ func main() {
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Student api running..."))
-	})
+	router.HandleFunc("POST /", student.Create())
 
 	server := http.Server{
 		Addr:    cfg.Address,
