@@ -13,14 +13,20 @@ import (
 
 	"github.com/Awais914/go-students-api/internal/config"
 	"github.com/Awais914/go-students-api/internal/http/handlers/student"
+	"github.com/Awais914/go-students-api/internal/storage/sqlite"
 )
 
 func main() {
 	cfg := config.MustLoad()
 
+	storage, err := sqlite.New(*cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /", student.Create())
+	router.HandleFunc("POST /", student.Create(storage))
 
 	server := http.Server{
 		Addr:    cfg.Address,

@@ -5,14 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 
+	"github.com/Awais914/go-students-api/internal/storage"
 	"github.com/Awais914/go-students-api/internal/types"
 	"github.com/Awais914/go-students-api/internal/utils/response"
 	"github.com/go-playground/validator/v10"
 )
 
-func Create() http.HandlerFunc {
+func Create(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var student types.Student
 
@@ -33,6 +35,13 @@ func Create() http.HandlerFunc {
 			return
 		}
 
-		response.WriteJson(w, http.StatusCreated, map[string]string{"message": "Created"})
+		stdId, err := storage.CreateStudent(student.Email, student.Name, student.Age)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		slog.Info("student created successfully")
+		response.WriteJson(w, http.StatusCreated, map[string]int64{"id": stdId})
 	}
 }
