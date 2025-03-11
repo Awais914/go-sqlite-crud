@@ -2,8 +2,10 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Awais914/go-students-api/internal/config"
+	"github.com/Awais914/go-students-api/internal/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -52,4 +54,53 @@ func (s *Sqlite) CreateStudent(name string, email string, age int) (int64, error
 	}
 
 	return lastId, nil
+}
+
+func (s *Sqlite) GetStudentById(id int64) (types.Student, error) {
+	stmt, err := s.Db.Prepare("SELECT * FROM students where id = ?")
+	if err != nil {
+		return types.Student{}, err
+	}
+
+	defer stmt.Close()
+
+	var student types.Student
+	err = stmt.QueryRow(id).Scan(&student.Id, &student.Name, &student.Email, &student.Age)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return types.Student{}, nil
+		}
+		return types.Student{}, fmt.Errorf("query error %w", err)
+	}
+
+	return student, nil
+}
+
+func (s *Sqlite) GetAllStudents(limit int, page int) ([]types.Student, error) {
+	pageSize := limit
+	offset := (page - 1) * pageSize
+
+	stmt, err := s.Db.Prepare("SELECT * FROM students LIMIT ? OFFSET ?")
+	if err != nil {
+		return nil, err
+	}
+
+	defer stmt.Close()
+
+	rows, err := stmt.Query(pageSize, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	var students []types.Student
+	for rows.Next() {
+		var student types.Student
+		err = rows.Scan(&student.Id, &student.Name, &student.Email, &student.Age)
+		if err != nil {
+			return nil, err
+		}
+		students = append(students, student)
+	}
+
+	return students, nil
 }

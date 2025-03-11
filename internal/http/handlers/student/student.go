@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/Awais914/go-students-api/internal/storage"
 	"github.com/Awais914/go-students-api/internal/types"
@@ -43,5 +44,61 @@ func Create(storage storage.Storage) http.HandlerFunc {
 
 		slog.Info("student created successfully")
 		response.WriteJson(w, http.StatusCreated, map[string]int64{"id": stdId})
+	}
+}
+
+func GetById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.HandleError(err))
+			return
+		}
+
+		student, err := storage.GetStudentById(id)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.HandleError(err))
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, student)
+	}
+}
+
+func GetAll(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		limitStr := r.URL.Query().Get("limit")
+		var limit int
+		if limitStr == "" {
+			limit = 10
+		} else {
+			var err error
+			limit, err = strconv.Atoi(limitStr)
+			if err != nil {
+				response.WriteJson(w, http.StatusBadRequest, response.HandleError(fmt.Errorf("invalid limit")))
+				return
+			}
+		}
+
+		pageStr := r.URL.Query().Get("page")
+		var page int
+		if pageStr == "" {
+			page = 1
+		} else {
+			var err error
+			page, err = strconv.Atoi(pageStr)
+			if err != nil {
+				response.WriteJson(w, http.StatusBadRequest, response.HandleError(fmt.Errorf("invalid page")))
+				return
+			}
+		}
+
+		students, err := storage.GetAllStudents(limit, page)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.HandleError(err))
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, students)
 	}
 }

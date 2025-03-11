@@ -26,7 +26,9 @@ func main() {
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /", student.Create(storage))
+	router.HandleFunc("POST /api/students", student.Create(storage))
+	router.HandleFunc("GET /api/students/{id}", student.GetById(storage))
+	router.HandleFunc("GET /api/students", student.GetAll(storage))
 
 	server := http.Server{
 		Addr:    cfg.Address,
