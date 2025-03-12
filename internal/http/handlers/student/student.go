@@ -102,3 +102,46 @@ func GetAll(storage storage.Storage) http.HandlerFunc {
 		response.WriteJson(w, http.StatusOK, students)
 	}
 }
+
+func UpdateById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.HandleError(err))
+			return
+		}
+
+		var student types.Student
+		err = json.NewDecoder(r.Body).Decode(&student)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.HandleError(err))
+			return
+		}
+
+		err = storage.UpdateStudentById(id, student.Email, student.Name, student.Age)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.HandleError(err))
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, map[string]string{"message": "student updated successfully"})
+	}
+}
+
+func DeleteById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil {
+			response.WriteJson(w, http.StatusBadRequest, response.HandleError(err))
+			return
+		}
+
+		err = storage.DeleteStudentById(id)
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.HandleError(err))
+			return
+		}
+
+		response.WriteJson(w, http.StatusOK, map[string]string{"message": "student deleted successfully"})
+	}
+}

@@ -104,3 +104,51 @@ func (s *Sqlite) GetAllStudents(limit int, page int) ([]types.Student, error) {
 
 	return students, nil
 }
+
+func (s *Sqlite) UpdateStudentById(id int64, name string, email string, age int) error {
+	student, err := s.GetStudentById(id)
+	if err != nil {
+		return err
+	}
+
+	if student == (types.Student{}) {
+		return fmt.Errorf("student not found with id %d", id)
+	}
+
+	stmt, err := s.Db.Prepare("UPDATE students SET name = ?, email = ?, age = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(name, email, age, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Sqlite) DeleteStudentById(id int64) error {
+	student, err := s.GetStudentById(id)
+	if err != nil {
+		return err
+	}
+
+	if student == (types.Student{}) {
+		return fmt.Errorf("student not found with id %d", id)
+	}
+
+	stmt, err := s.Db.Prepare("DELETE FROM students WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
